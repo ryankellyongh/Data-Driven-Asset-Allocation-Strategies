@@ -92,9 +92,12 @@ Three strategies are compared on net-of-cost annualized performance:
 - Transaction cost drag, not the allocation signal, was the primary performance
   headwind for Kelly. Reducing rebalancing frequency from hourly to daily
   improved annualized returns by ~200 percentage points.
-- Equal-weight outperformed Kelly net of costs, likely reflecting both lower
-  turnover and a stock universe tilted toward large-cap winners where dispersion
-  is limited.
+- Equal-weight outperformed Kelly on returns and Sharpe ratio net of costs,
+  likely reflecting both lower turnover and a stock universe tilted toward
+  large-cap winners where dispersion is limited.
+- Kelly achieved the lowest maximum drawdown of all three strategies (-3.18%
+  vs -4.92% for equal-weight and -5.29% for SPY), suggesting the allocation
+  signal adds value in limiting downside risk even when it trails on returns.
 - Both active strategies significantly outperformed the SPY benchmark.
 
 ---
