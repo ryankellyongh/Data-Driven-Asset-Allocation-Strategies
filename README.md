@@ -21,16 +21,18 @@ affect net-of-cost returns?
 ---
 
 ## Asset Universe
+14 publicly traded securities spanning five sectors, selected for liquidity, factor diversity, and Kelly stability:
 
-20 publicly traded securities spanning multiple sectors:
-
-| Ticker | Ticker | Ticker | Ticker |
-|--------|--------|--------|--------|
-| AAPL   | NEE    | JPM    | GE     |
-| MSFT   | FSLR   | BAC    | HON    |
-| NVDA   | SPWR   | WFC    | CAT    |
-| GOOGL  | ABBV   | UNH    | PG     |
-| META   | PFE    | WMT    | KO     |
+| Ticker | Sector       | Ticker | Sector       |
+|--------|--------------|--------|--------------|
+| AAPL   | Technology   | SLV    | Commodities  |
+| GOOGL  | Technology   | XOM    | Commodities  |
+| MSFT   | Technology   | FCX    | Commodities  |
+| NEE    | Clean Energy | TLT    | Fixed Income |
+| CEG    | Clean Energy | IEF    | Fixed Income |
+| ABBV   | Healthcare   | V      | Financials   |
+| UNH    | Healthcare   |        |              |
+| LLY    | Healthcare   |        |              |
 
 Data source: Yahoo Finance via yfinance. Hourly prices from 2024-12-01 to
 2025-12-01. The annual risk-free rate is set to 2.90%, converted to an
