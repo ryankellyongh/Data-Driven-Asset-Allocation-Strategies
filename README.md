@@ -60,18 +60,7 @@ covariance matrix, improving stability when the estimation window is close to
 the number of assets. Weights are constrained to be long-only, capped at 21%
 per asset, and normalized to sum to one.
 
-### 3. Rebalancing Frequency Analysis
-
-Kelly weights are recomputed at a configurable frequency (REBAL_FREQ). Three
-frequencies are tested and compared:
-
-| Frequency | Ann. Return | Sharpe |
-|-----------|-------------|--------|
-| Hourly    | 453%        | 15.6   |
-| Daily     | 651%        | 22.2   |
-| 48-hour   | 668%        | 23.0   |
-
-### 4. Transaction Costs
+### 3. Transaction Costs
 
 A 10 basis point one-way transaction cost is applied at each rebalance based on
 portfolio turnover. This reflects realistic trading frictions and is the primary
@@ -88,7 +77,6 @@ Three strategies are compared on net-of-cost annualized performance:
 | SPY          | 28.02%        | 18.77%        | 1.338  | 1.603   | -14.24%      |
 
 
-
 ---
 
 ## Key Findings
@@ -99,8 +87,8 @@ Three strategies are compared on net-of-cost annualized performance:
 - Equal-weight outperformed Kelly on returns and Sharpe ratio net of costs,
   likely reflecting both lower turnover and a stock universe tilted toward
   large-cap winners where dispersion is limited.
-- Kelly achieved the lowest maximum drawdown of all three strategies (-3.18%
-  vs -4.92% for equal-weight and -5.29% for SPY), suggesting the allocation
+- Kelly achieved the lowest maximum drawdown of all three strategies (-13.13%
+  vs -12.80% for equal-weight and -14.24% for SPY), suggesting the allocation
   signal adds value in limiting downside risk even when it trails on returns.
 - Both active strategies significantly outperformed the SPY benchmark.
 
