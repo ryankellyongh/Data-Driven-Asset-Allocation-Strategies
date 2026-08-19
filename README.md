@@ -83,9 +83,11 @@ Three strategies are compared on net-of-cost annualized performance:
 
 | Strategy     | Ann. Return | Ann. Volatility | Sharpe | Sortino | Max Drawdown |
 |--------------|-------------|-----------------|--------|---------|--------------|
-| Kelly        | 651%        | 29.13%          | 22.24  | 36.38   | -3.18%       |
-| Equal Weight | 755%        | 27.99%          | 26.88  | 40.92   | -4.92%       |
-| SPY          | 311%        | 25.93%          | 11.88  | 15.85   | -5.29%       |
+| Kelly        | 33.07%        | 15.56%        | 1.938  | 2.424   | -13.13%      |
+| Equal Weight | 30.81%        | 15.92%        | 1.753  | 2.194   | -12.80%      |
+| SPY          | 28.02%        | 18.77%        | 1.338  | 1.603   | -14.24%      |
+
+
 
 ---
 
