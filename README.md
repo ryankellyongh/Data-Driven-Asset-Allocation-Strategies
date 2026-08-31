@@ -1,32 +1,38 @@
-# Data-Driven Asset Allocation Strategies
+# Rolling Mean-Variance Asset Allocation
 
-Open Avenues Foundation — Quantitative Finance Track
+Open Avenues Foundation — Data-Driven Asset Allocation Strategies
 
 ---
 
 ## Research Question
 
-Does the Kelly Criterion improve risk-adjusted portfolio performance compared to
-equal-weight allocation, and how do transaction costs and rebalancing frequency
-affect net-of-cost returns?
+Does mean-variance optimization with covariance shrinkage improve risk-adjusted
+portfolio performance over naive equal-weight allocation, once transaction costs
+are accounted for and the result is validated out of sample?
+
+**Short answer: no.** On this sample the optimized portfolio matched equal weight
+on Sharpe and underperformed it on drawdown, both in sample and out.
 
 ---
 
 ## Project Structure
 
-├── Data-Driven_Asset_Allocation_Strategies.ipynb
+├── Kelly_Asset_Allocation.ipynb
 ├── README.md
-└── data/                  # Downloaded via yfinance at runtime
+└── prices_hourly.parquet # cached price data, created on first run
+
+
 
 ---
 
 ## Asset Universe
-14 publicly traded securities spanning five sectors, selected for liquidity, factor diversity, and Kelly stability:
+
+14 securities across six sectors, chosen for liquidity and factor diversity:
 
 | Ticker | Sector       | Ticker | Sector       |
 |--------|--------------|--------|--------------|
 | AAPL   | Technology   | SLV    | Commodities  |
-| GOOGL  | Technology   | XOM    | Commodities  |
+| GOOGL  | Technology   | CPER   | Commodities  |
 | MSFT   | Technology   | FCX    | Commodities  |
 | NEE    | Clean Energy | TLT    | Fixed Income |
 | CEG    | Clean Energy | IEF    | Fixed Income |
@@ -34,92 +40,118 @@ affect net-of-cost returns?
 | UNH    | Healthcare   |        |              |
 | LLY    | Healthcare   |        |              |
 
-Data source: Yahoo Finance via yfinance. Hourly prices from 2024-12-01 to
-2025-12-01. The annual risk-free rate is set to 2.90%, converted to an
-equivalent hourly rate.
+Hourly closing prices from Yahoo Finance via `yfinance`, 2024-12-01 to 2025-12-01
+(1,731 bars). Risk-free rate of 2.90% annual, converted to an hourly rate over
+1,638 trading hours per year.
 
 ---
 
 ## Methodology
 
-### 1. Data Download & Preprocessing
+**Data.** Hourly closes for the 14 assets plus SPY as benchmark. Forward-fill
+handles intraday gaps; downloads are validated for missing or all-NaN columns and
+cached to parquet.
 
-Hourly closing prices are downloaded for all 20 assets plus SPY as a benchmark.
-Forward-fill handles occasional intraday gaps. Hourly returns and excess returns
-are computed and aligned to a shared datetime index.
+**Weight estimator.** For each rolling 504-hour window (~3 weeks), weights are
+estimated as w ∝ Σ⁻¹μ
 
-### 2. Kelly Weight Estimator
 
-For each rolling window the Kelly weight vector is estimated via the
-mean-variance approximation:
+with Σ estimated via Ledoit-Wolf shrinkage rather than the sample covariance
+matrix, which is near-singular at 504 observations across 14 assets. Weights are
+constrained long-only, capped at 15% per asset, and normalized to sum to one.
 
-f ∝ Σ⁻¹μ
+Note: normalizing to full investment discards the magnitude of Σ⁻¹μ, which is what
+distinguishes the Kelly Criterion — the total exposure it prescribes. What this
+implements is the long-only capped tangency portfolio, not Kelly.
 
-Covariance is estimated using Ledoit-Wolf shrinkage rather than the sample
-covariance matrix, improving stability when the estimation window is close to
-the number of assets. Weights are constrained to be long-only, capped at 21%
-per asset, and normalized to sum to one.
+**Costs.** 10bps one-way, charged on turnover at each weekly rebalance.
 
-### 3. Transaction Costs
+**Validation.** Walk-forward across 13 folds, training on ~6 months and testing on
+the following period, with identical mechanics for both strategies.
 
-A 10 basis point one-way transaction cost is applied at each rebalance based on
-portfolio turnover. This reflects realistic trading frictions and is the primary
-driver of performance differences across rebalancing frequencies.
+---
 
-### 5. Strategy Evaluation
+## Results
 
-Three strategies are compared on net-of-cost annualized performance:
+**In-sample** (net of costs, annualized):
 
-| Strategy     | Ann. Return | Ann. Volatility | Sharpe | Sortino | Max Drawdown |
-|--------------|-------------|-----------------|--------|---------|--------------|
-| Kelly        | 33.07%        | 15.56%        | 1.938  | 2.424   | -13.13%      |
-| Equal Weight | 30.81%        | 15.92%        | 1.753  | 2.194   | -12.80%      |
-| SPY          | 28.02%        | 18.77%        | 1.338  | 1.603   | -14.24%      |
+| Strategy      | Return | Volatility | Sharpe | Sortino | Max Drawdown |
+|---------------|--------|------------|--------|---------|--------------|
+| Mean-variance | 31.24% | 16.31%     | 1.738  | 2.549   | −14.86%      |
+| Equal weight  | 30.81% | 15.92%     | 1.753  | 2.602   | −12.80%      |
+| SPY           | 28.02% | 18.77%     | 1.338  | 1.981   | −14.24%      |
 
+**Out-of-sample** (13 walk-forward folds):
+
+| Strategy      | Return | Volatility | Sharpe | Sortino |
+|---------------|--------|------------|--------|---------|
+| Mean-variance | 48.75% | 14.01%     | 3.273  | 4.916   |
+| Equal weight  | 44.39% | 11.32%     | 3.665  | 5.789   |
+
+Optimized beat equal weight in 8 of 13 folds (62%), which is not distinguishable
+from chance (p = 0.29). Out-of-sample Sharpes are not comparable to the in-sample
+table — the folds cover a later, lower-volatility stretch of the sample.
 
 ---
 
 ## Key Findings
 
-- Transaction cost drag, not the allocation signal, was the primary performance
-  headwind for Kelly. Reducing rebalancing frequency from hourly to daily
-  improved annualized returns by ~200 percentage points.
-- Equal-weight outperformed Kelly on returns and Sharpe ratio net of costs,
-  likely reflecting both lower turnover and a stock universe tilted toward
-  large-cap winners where dispersion is limited.
-- Kelly achieved the lowest maximum drawdown of all three strategies (-13.13%
-  vs -12.80% for equal-weight and -14.24% for SPY), suggesting the allocation
-  signal adds value in limiting downside risk even when it trails on returns.
-- Both active strategies significantly outperformed the SPY benchmark.
+**The optimization added no risk-adjusted value.** Equal weight matched or beat it
+on Sharpe, Sortino, and max drawdown in sample, and on pooled Sharpe out of sample.
+The 43bps of extra raw return came with higher volatility and two additional points
+of drawdown.
+
+**It wins often but loses big.** The optimized portfolio outperformed in 62% of
+out-of-sample folds while trailing on pooled Sharpe — frequent small wins offset by
+larger losses.
+
+**Diversification, not weighting, drove the benchmark gap.** Both portfolios beat
+SPY by roughly 3 points of return at lower volatility. That came from the asset mix
+spanning equities, commodities, and Treasuries, and is unaffected by how the weights
+within it are chosen.
+
+**An earlier version of this project reported a Sharpe of 1.938.** That result came
+from a bug in the weight-capping routine: assets rejected by the long-only
+constraint had zero weight and therefore maximum slack, so they received the largest
+share of redistributed capital. Roughly 4.4% of the portfolio went to positions the
+optimizer had explicitly declined. Fixing it eliminated the apparent edge.
+
+**This is the expected outcome.** With 504 observations and 14 assets, the
+covariance matrix has 105 free parameters. Mean-variance optimization is known to
+amplify estimation error in μ, and Ledoit-Wolf shrinkage stabilizes Σ but does
+nothing for the mean estimates — the noisier input. Equal weight estimates nothing,
+which is why it is hard to beat on short samples.
 
 ---
 
-## Libraries
+## Limitations
 
-yfinance
-pandas
-numpy
-matplotlib
-sklearn (LedoitWolf)
+One year of hourly data through a sustained bull market. Flat 10bps costs with no
+slippage or market impact. No tax modeling; weekly rebalancing in a taxable account
+would generate short-term gains that materially reduce after-tax returns.
 
-Install all dependencies:
+## Next Steps
 
-pip install yfinance pandas numpy matplotlib scikit-learn
+Extend to a full market cycle including a drawdown — this requires daily rather than
+hourly bars, since `yfinance` serves roughly two years of hourly history. Test
+sensitivity to window length and rebalance frequency, neither of which was tuned.
+Add minimum-variance and risk-parity baselines, which drop the μ estimate entirely
+and would isolate how much of any edge comes from the return forecast versus the
+covariance structure.
 
 ---
 
-## How to Run
+## Setup
 
-1. Clone the repository.
-2. Install dependencies (see above).
-3. Open Data-Driven_Asset_Allocation_Strategies.ipynb in Jupyter Notebook or
-   JupyterLab.
-4. Run all cells sequentially. Price data is downloaded automatically from
-   Yahoo Finance.
+```bash
+pip install yfinance pandas numpy matplotlib scikit-learn pyarrow
+```
+
+Open `Kelly_Asset_Allocation.ipynb` and run all cells. Price data downloads on first
+run and caches to `prices_hourly.parquet`.
 
 ---
 
 ## Acknowledgments
 
-Built as part of the Open Avenues Foundation Data-Driven Asset Allocation
-project.
+Built as part of the Open Avenues Foundation Data-Driven Asset Allocation project.
