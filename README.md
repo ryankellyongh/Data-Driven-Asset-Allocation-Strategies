@@ -1,6 +1,6 @@
 # Rolling Mean-Variance Asset Allocation
 
-Open Avenues Foundation — Data-Driven Asset Allocation Strategies
+Open Avenues Foundation. Data-Driven Asset Allocation Strategies
 
 ---
 
@@ -50,32 +50,36 @@ Hourly closing prices from Yahoo Finance via `yfinance`, 2024-12-01 to 2025-12-0
 
 ## Methodology
 
-**Data.** Hourly closes for the 14 assets plus SPY as benchmark. Forward-fill
+**Data** 
+
+Hourly closes for the 14 assets plus SPY as benchmark. Forward-fill
 handles intraday gaps; downloads are validated for missing or all-NaN columns and
 cached to parquet.
 
-**Weight estimator.** For each rolling 504-hour window (~3 weeks), weights are
-estimated as w ∝ Σ⁻¹μ
+**Weight estimator** 
 
-
-with Σ estimated via Ledoit-Wolf shrinkage rather than the sample covariance
-matrix, which is near-singular at 504 observations across 14 assets. Weights are
-constrained long-only, capped at 15% per asset, and normalized to sum to one.
+For each rolling 504-hour window (~3 weeks), weights are estimated as w ∝ Σ⁻¹μ with Σ estimated via Ledoit-Wolf shrinkage rather than the sample covariance matrix, which is near-singular at 504 observations across 14 assets. Weights are constrained long-only, capped at 15% per asset, and normalized to sum to one.
 
 Note: normalizing to full investment discards the magnitude of Σ⁻¹μ, which is what
 distinguishes the Kelly Criterion. The total exposure it prescribes. What this
 implements is the long-only capped tangency portfolio, not Kelly.
 
-**Costs.** 10bps one-way, charged on turnover at each weekly rebalance.
+**Costs** 
 
-**Validation.** Walk-forward across 13 folds, training on ~6 months and testing on
+10bps one-way, charged on turnover at each weekly rebalance.
+
+**Validation** 
+
+Walk-forward across 13 folds, training on ~6 months and testing on
 the following period, with identical mechanics for both strategies.
 
 ---
 
 ## Results
 
-**In-sample** (net of costs, annualized):
+**In-sample** 
+
+(net of costs, annualized):
 
 | Strategy      | Return | Volatility | Sharpe | Sortino | Max Drawdown |
 |---------------|--------|------------|--------|---------|--------------|
@@ -83,7 +87,9 @@ the following period, with identical mechanics for both strategies.
 | Equal weight  | 30.81% | 15.92%     | 1.753  | 2.602   | −12.80%      |
 | SPY           | 28.02% | 18.77%     | 1.338  | 1.981   | −14.24%      |
 
-**Out-of-sample** (13 walk-forward folds):
+**Out-of-sample** 
+
+(13 walk-forward folds):
 
 | Strategy      | Return | Volatility | Sharpe | Sortino |
 |---------------|--------|------------|--------|---------|
