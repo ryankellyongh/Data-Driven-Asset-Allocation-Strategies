@@ -16,7 +16,6 @@ on Sharpe and underperformed it on drawdown, both in sample and out.
 ---
 
 ## Project Structure
-
 ├── Kelly_Asset_Allocation.ipynb
 ├── README.md
 └── prices_hourly.parquet # cached price data, created on first run
