@@ -63,7 +63,7 @@ matrix, which is near-singular at 504 observations across 14 assets. Weights are
 constrained long-only, capped at 15% per asset, and normalized to sum to one.
 
 Note: normalizing to full investment discards the magnitude of Σ⁻¹μ, which is what
-distinguishes the Kelly Criterion — the total exposure it prescribes. What this
+distinguishes the Kelly Criterion. The total exposure it prescribes. What this
 implements is the long-only capped tangency portfolio, not Kelly.
 
 **Costs.** 10bps one-way, charged on turnover at each weekly rebalance.
@@ -134,7 +134,7 @@ would generate short-term gains that materially reduce after-tax returns.
 
 ## Next Steps
 
-Extend to a full market cycle including a drawdown — this requires daily rather than
+Extend to a full market cycle including a drawdown. This requires daily rather than
 hourly bars, since `yfinance` serves roughly two years of hourly history. Test
 sensitivity to window length and rebalance frequency, neither of which was tuned.
 Add minimum-variance and risk-parity baselines, which drop the μ estimate entirely
